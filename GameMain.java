@@ -3,23 +3,24 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class GameMain extends JPanel implements MouseListener {
-    // Constants for game
-    public static final int ROWS = 3;
-    public static final int COLS = 3;
-    public static final String TITLE = "Tic Tac Toe";
+    // Constants for game dimensions and appearance
+    public static final int ROWS = 3; // number of rows in the grid
+    public static final int COLS = 3; // number of columns in the grid
+    public static final String TITLE = "Tic Tac Toe"; // window title
 
-    public static final int CELL_SIZE = 100;
-    public static final int CANVAS_WIDTH = CELL_SIZE * COLS;
-    public static final int CANVAS_HEIGHT = CELL_SIZE * ROWS;
-    public static final int CELL_PADDING = CELL_SIZE / 6;
-    public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2;
-    public static final int SYMBOL_STROKE_WIDTH = 8;
+    //cell and canvas dimensions
+    public static final int CELL_SIZE = 100; // size of each cell in pixels
+    public static final int CANVAS_WIDTH = CELL_SIZE * COLS; // total canvas width
+    public static final int CANVAS_HEIGHT = CELL_SIZE * ROWS; // total canvas height
+    public static final int CELL_PADDING = CELL_SIZE / 6; // padding inside each cell for symbols
+    public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2; // symbol size (X or O)
+    public static final int SYMBOL_STROKE_WIDTH = 8; // thickness of symbol lines
 
     // Game object variables
-    private Board board;
-    private GameState currentState;
-    private Player currentPlayer;
-    private JLabel statusBar;
+    private Board board; // game board to track cell contents
+    private GameState currentState; // current state of the game (playing, draw and win)
+    private Player currentPlayer; // current player (X or O)
+    private JLabel statusBar; // label to display game status messages
 
     /** Constructor to setup the UI and game components on the panel */
     public GameMain() {
@@ -28,19 +29,20 @@ public class GameMain extends JPanel implements MouseListener {
 
         // Setup the status bar (JLabel) to display status message
         statusBar = new JLabel("         ");
-        statusBar.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 14));
-        statusBar.setBorder(BorderFactory.createEmptyBorder(2, 5, 4, 5));
+        statusBar.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 14)); // font for status messages
+        statusBar.setBorder(BorderFactory.createEmptyBorder(2, 5, 4, 5)); // padding around status text
         statusBar.setOpaque(true);
-        statusBar.setBackground(Color.LIGHT_GRAY);
+        statusBar.setBackground(Color.LIGHT_GRAY); // background colour for status bar
 
+        // set layout for ther panel and add the status bar at the bottom 
         setLayout(new BorderLayout());
         add(statusBar, BorderLayout.SOUTH);
-        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT + 30));
+        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT + 30)); // sets the panel size
 
         // Create a new instance of the Board class
         board = new Board();
 
-        // Initiliases the game board
+        // Starts a new game
         initGame();
     }
 
@@ -56,8 +58,9 @@ public class GameMain extends JPanel implements MouseListener {
                 // Sets the default close operation
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+                // Prepare and display the window
                 frame.pack();
-                frame.setLocationRelativeTo(null);
+                frame.setLocationRelativeTo(null); // Centers the window on screen
                 frame.setVisible(true);
             }
         });
@@ -65,9 +68,10 @@ public class GameMain extends JPanel implements MouseListener {
 
     /** Custom painting codes on this JPanel */
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        setBackground(Color.WHITE);
+        super.paintComponent(g); // Clears the background
+        setBackground(Color.WHITE); // Set background colour to white
 
+        // Draws the board and symbols
         board.paint(g);
 
         if (currentState == GameState.Playing) {
