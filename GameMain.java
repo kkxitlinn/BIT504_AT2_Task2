@@ -2,13 +2,12 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+// GameMain class
 public class GameMain extends JPanel implements MouseListener {
-    // Constants for game dimensions and appearance
     public static final int ROWS = 3; // number of rows in the grid
     public static final int COLS = 3; // number of columns in the grid
     public static final String TITLE = "Tic Tac Toe"; // window title
 
-    //cell and canvas dimensions
     public static final int CELL_SIZE = 100; // size of each cell in pixels
     public static final int CANVAS_WIDTH = CELL_SIZE * COLS; // total canvas width
     public static final int CANVAS_HEIGHT = CELL_SIZE * ROWS; // total canvas height
@@ -16,71 +15,53 @@ public class GameMain extends JPanel implements MouseListener {
     public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2; // symbol size (X or O)
     public static final int SYMBOL_STROKE_WIDTH = 8; // thickness of symbol lines
 
-    // Game object variables
     private Board board; // game board to track cell contents
-    private GameState currentState; // current state of the game (playing, draw and win)
+    private GameState currentState; // current state of the game
     private Player currentPlayer; // current player (X or O)
     private JLabel statusBar; // label to display game status messages
 
-    /** Constructor to setup the UI and game components on the panel */
     public GameMain() {
-        // Adds mouse listener to this JPanel to capture the clicks
         this.addMouseListener(this);
 
-        // Setup the status bar (JLabel) to display status message
         statusBar = new JLabel("         ");
-        statusBar.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 14)); // font for status messages
-        statusBar.setBorder(BorderFactory.createEmptyBorder(2, 5, 4, 5)); // padding around status text
+        statusBar.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 14));
+        statusBar.setBorder(BorderFactory.createEmptyBorder(2, 5, 4, 5));
         statusBar.setOpaque(true);
-        statusBar.setBackground(Color.LIGHT_GRAY); // background colour for status bar
+        statusBar.setBackground(Color.LIGHT_GRAY);
 
-        // set layout for ther panel and add the status bar at the bottom 
+        // sets layout and add status bar to the bottom of the panel
         setLayout(new BorderLayout());
         add(statusBar, BorderLayout.SOUTH);
-        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT + 30)); // sets the panel size
+        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT + 30));
 
-        // Create a new instance of the Board class
-        board = new Board();
+        board = new Board(); // initialises the game board
 
-        // Starts a new game
-        initGame();
+        initGame(); // starts a new game
     }
-
+// main method to start the game
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                JFrame frame = new JFrame(TITLE);
-
-                // Creates the GameMain panel and add it to the frame
-                GameMain gamePanel = new GameMain();
-                frame.add(gamePanel);
-
-                // Sets the default close operation
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-                // Prepare and display the window
-                frame.pack();
-                frame.setLocationRelativeTo(null); // Centers the window on screen
-                frame.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame(TITLE); // creates the game window
+            GameMain gamePanel = new GameMain(); // creates the game panel
+            frame.add(gamePanel); // add the panel to the frame
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // closes the program on exit
+            frame.pack(); // adjusts the frame size
+            frame.setLocationRelativeTo(null); // centre the window
+            frame.setVisible(true); // displays the window
         });
     }
-
-    /** Custom painting codes on this JPanel */
+    // paints the game components on the screen
     public void paintComponent(Graphics g) {
-        super.paintComponent(g); // Clears the background
-        setBackground(Color.WHITE); // Set background colour to white
+        super.paintComponent(g);
+        setBackground(Color.WHITE); // set background colour
+        board.paint(g); // draws the game board
 
-        // Draws the board and symbols
-        board.paint(g);
-
+        // updates the status bar based on the current game state
         if (currentState == GameState.Playing) {
             statusBar.setForeground(Color.BLACK);
             if (currentPlayer == Player.Cross) {
-                // Display "X's Turn" on the status bar
                 statusBar.setText("X's Turn");
             } else {
-                // Display "O's Turn" on the status bar
                 statusBar.setText("O's Turn");
             }
         } else if (currentState == GameState.Draw) {
@@ -94,33 +75,30 @@ public class GameMain extends JPanel implements MouseListener {
             statusBar.setText("'O' Won! Click to play again.");
         }
     }
-
-    // Starts a new game with an empty board and X as the first player
+    // initialises or resets the game
     public void initGame() {
+        // clears all cells
         for (int row = 0; row < ROWS; ++row) {
             for (int col = 0; col < COLS; ++col) {
-                // Sets all cells to empty at the start of the game
                 board.cells[row][col].content = Player.Empty;
             }
         }
-        currentState = GameState.Playing;
-        currentPlayer = Player.Cross;
+        currentState = GameState.Playing; // sets the game state
+        currentPlayer = Player.Cross; // starts with X
     }
-
+    // the following code updates the game state after a move
     public void updateGame(Player thePlayer, int row, int col) {
         if (board.hasWon(thePlayer, row, col)) {
-            // Check which player won and set the game state accordingly
             if (thePlayer == Player.Cross) {
                 currentState = GameState.Cross_won;
             } else {
                 currentState = GameState.Nought_won;
             }
         } else if (board.isDraw()) {
-            // Set the game state to draw if there’s no winner and no empty cells left
             currentState = GameState.Draw;
         }
     }
-
+    // the following code handles the mouse click events
     public void mouseClicked(MouseEvent e) {
         int mouseX = e.getX();
         int mouseY = e.getY();
@@ -140,12 +118,9 @@ public class GameMain extends JPanel implements MouseListener {
                 }
             }
         } else {
-            // This code I added, restarts the game if it’s over
-            initGame();
+            initGame(); // restarts the game if it is over
         }
-
-        // This code I added, repaints the game board after every click to update the UI to show updates
-        repaint();
+        repaint(); // repaints the board
     }
 
     @Override
@@ -156,4 +131,89 @@ public class GameMain extends JPanel implements MouseListener {
     public void mouseEntered(MouseEvent e) {}
     @Override
     public void mouseExited(MouseEvent e) {}
+}
+
+// Define the GameState enum
+enum GameState {
+    Playing, Draw, Cross_won, Nought_won
+}
+
+// Define the Player enum
+enum Player {
+    Empty, Cross, Nought
+}
+
+// Define the Board class
+class Board {
+    public Cell[][] cells;
+
+    public Board() {
+        cells = new Cell[GameMain.ROWS][GameMain.COLS]; // initialises the board
+        for (int row = 0; row < GameMain.ROWS; ++row) {
+            for (int col = 0; col < GameMain.COLS; ++col) {
+                cells[row][col] = new Cell(row, col); // creates each cell
+            }
+        }
+    }
+    // paints the board
+    public void paint(Graphics g) {
+        for (int row = 0; row < GameMain.ROWS; ++row) {
+            for (int col = 0; col < GameMain.COLS; ++col) {
+                cells[row][col].paint(g); // paints each cell
+            }
+        }
+    }
+    // checks if a player has won
+    public boolean hasWon(Player player, int row, int col) {
+        // Check row
+        if (cells[row][0].content == player && cells[row][1].content == player && cells[row][2].content == player)
+            return true;
+        // Check column
+        if (cells[0][col].content == player && cells[1][col].content == player && cells[2][col].content == player)
+            return true;
+        // Check diagonals
+        if (cells[0][0].content == player && cells[1][1].content == player && cells[2][2].content == player)
+            return true;
+        if (cells[0][2].content == player && cells[1][1].content == player && cells[2][0].content == player)
+            return true;
+
+        return false;
+    }
+    // the code below checks if the game is a draw
+    public boolean isDraw() {
+        for (int row = 0; row < GameMain.ROWS; ++row) {
+            for (int col = 0; col < GameMain.COLS; ++col) {
+                if (cells[row][col].content == Player.Empty) {
+                    return false; // empty cell has been found, not a draw
+                }
+            }
+        }
+        return true; // no empty cells, its a draw
+    }
+}
+
+
+// Define the Cell class
+class Cell {
+    public Player content; // content of the cell (X, O or empty)
+    private int row, col; // row and column of the cell
+
+    public Cell(int row, int col) {
+        this.row = row;
+        this.col = col;
+        content = Player.Empty; // initialises as empty
+    }
+    //The following code paints the cell content (X or O)
+    public void paint(Graphics g) {
+        int x1 = col * GameMain.CELL_SIZE + GameMain.CELL_PADDING;
+        int y1 = row * GameMain.CELL_SIZE + GameMain.CELL_PADDING;
+        if (content == Player.Cross) {
+            g.setColor(Color.RED);
+            g.drawLine(x1, y1, x1 + GameMain.SYMBOL_SIZE, y1 + GameMain.SYMBOL_SIZE);
+            g.drawLine(x1, y1 + GameMain.SYMBOL_SIZE, x1 + GameMain.SYMBOL_SIZE, y1);
+        } else if (content == Player.Nought) {
+            g.setColor(Color.BLUE);
+            g.drawOval(x1, y1, GameMain.SYMBOL_SIZE, GameMain.SYMBOL_SIZE);
+        }
+    }
 }
